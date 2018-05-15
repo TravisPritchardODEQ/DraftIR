@@ -1,0 +1,8 @@
+Method,Sites Assessed,Number of Sites Listed,Percent Sites Listed,,,,,,,,,,,
+Use Detection Limit,245,245,100,,,Method,Number of AUs assessed,,Percent Samples exceeding,,Number of AUs Listed,,Percent Sites Listed,
+,,,,,,,Aquaitc Life (Chronic),Human Health,Aquaitc Life (Chronic),Human Health,Aquaitc Life (Chronic),Human Health,Aquaitc Life (Chronic),Human Health
+Use 1/2 Detection Limit,245,245,100,,,Remove from analysis,6,6,100,,6,6,100,
+Set to 0,-,Unable to calculate geomeans with 0,-,,,Use Detection Limit,245,,100,,245,,100,
+Eliminate,6,6,100,,,Use 1/2 Detection Limit,245,,100,,245,,100,
+Use 1/2 Standard,245,4,1.63,,,Set to 0,245,,0.49,,4,,1.63,
+,,,,,,Use 1/2 Criteria,245,,0.49,,4,,1.63,
