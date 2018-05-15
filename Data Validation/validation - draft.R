@@ -7,15 +7,15 @@ library(stringr)
 # Load data and combine ---------------------------------------------------
 
 # Load criteria data from ambient program
-load("anom_crit.Rdata")
+load("Data Validation/anom_crit.Rdata")
 
 
 # Load in template projects sheet 
-projects_import <- read_excel("Test_Data_For_Submission.xlsx", sheet = "Projects")
+projects_import <- read_excel("Data Validation/Test_Data_For_Submission.xlsx", sheet = "Projects")
 # Load in template monitoring locations
-monitoring_locations_import <- read_excel("Test_Data_For_Submission.xlsx", sheet = "Monitoring Locations")
+monitoring_locations_import <- read_excel("Data Validation/Test_Data_For_Submission.xlsx", sheet = "Monitoring Locations")
 #load in template results
-Results_import <-  read_excel("Test_Data_For_Submission.xlsx", sheet = "Results")
+Results_import <-  read_excel("Data Validation/Test_Data_For_Submission.xlsx", sheet = "Results")
 
 #rename columns to fit R style better
 ##### Fix this to be more consistant
