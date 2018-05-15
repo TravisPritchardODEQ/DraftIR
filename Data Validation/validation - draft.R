@@ -1,6 +1,11 @@
 library(tidyverse)
 library(readxl)
 library(stringr)
+require(rgdal)
+require(RODBC)
+
+#disable scientific notation
+options(scipen = 999)
 
 
 
@@ -30,24 +35,33 @@ Results <- Results_import %>%
   filter(Activity.Media.Subdivision.Name == "Surface Water")
   
 
-# Randomly assign regions. Replace with GIS based method -----------
 
-regions <- unique(anom_crit$region)
+# assign regions based on info from stations table -------------------------
 
-sites <- unique(Results$Monitoring.Location.ID)
-df <- data.frame(sites) %>%
-  rename(Monitoring.Location.ID = sites) %>%
-  mutate(region = "")
 
-#randomly assign siteIDs to regions
-for(i in 1:nrow(df)) {
+#get station table
 
-df$region[i] <- sample(regions, 1)
+#connect to view as a general user 
+sta.sql = odbcConnect('Stations')
 
-}
+#pull in stations table
+Stations = sqlFetch(sta.sql, "VWStationsFinal") 
 
-Results_region <- Results %>%
-  left_join(df, by = "Monitoring.Location.ID")
+#reformat some fields to char to avoid sci notation
+# Stations <- Stations %>%
+#   mutate(Reachcode = as.character(Stations$Reachcode))
+
+odbcClose(sta.sql)
+
+#merge Results table with stations
+HUC4 <- Stations %>%
+  select(STATION_KEY, HUC4_Name) %>%
+  mutate(Monitoring.Location.ID = paste0(STATION_KEY, "-ORDEQ")) %>%
+  select(-STATION_KEY)
+
+Results <- Results %>%
+  left_join(HUC4, by = "Monitoring.Location.ID") %>%
+  mutate(HUC4_Name = as.character(HUC4_Name))
 
 
 
@@ -55,11 +69,11 @@ Results_region <- Results %>%
 
 #read in file to convert template characteritic name to internal version
 #this isn't finished
-char_converter <- read.csv("char_converter.csv", na.strings=c("","NA"), stringsAsFactors = FALSE )
+char_converter <- read.csv("Data Validation/char_converter.csv", na.strings=c("","NA"), stringsAsFactors = FALSE )
 
 #deal with censored data
 #lines 67 - 70 is where we would replace censored data once that has been finalized
-Results_censored <- Results_region %>%
+Results_censored <- Results %>%
   mutate(r_qual = ifelse(!is.na(as.numeric(Result.Value)), "=", 
                     ifelse(str_sub(Result.Value, 1, 1) == "<", "<",
                            ifelse(str_sub(Result.Value, 1, 1) == ">", ">",
@@ -74,7 +88,7 @@ Results_censored <- Results_region %>%
 #compare results to 1st and 99th percentiles
 Results_validated <- Results_censored %>%
   left_join(char_converter, by = "Characteristic.Name" ) %>%
-  left_join(anom_crit, by = c("ORDEQ_char", "region")) %>%
+  left_join(anom_crit, by = c("ORDEQ_char", "HUC4_Name" = "StationHuc4")) %>%
   mutate(r = as.numeric(r)) %>%
   mutate(validate_flag = ifelse(r < per1, "Below 1%",
                                 ifelse(r > per99, "Above 99%", "Acceptable"))) 
