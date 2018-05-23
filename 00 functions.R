@@ -3,11 +3,11 @@ require(tidyverse)
 
 # Non Detects -------------------------------------------------------------
 
-# Seperate out qualifiers that are embedded inside Result.Value
+# Separate out qualifiers (<, >, =) that are embedded inside Result.Value
 # Create 2 new columns:  
-#      qual for qualifiers
-#      r for results without qualifiers
-# Input is a dataframe
+#      'qual' for qualifiers
+#      'r' for numeric results without qualifiers
+# Input is a dataframe - must have column named 'Result.Value'
 
 
 non.detects <- function(df){
@@ -28,6 +28,9 @@ non.detects <- function(df){
 # Geometric mean ----------------------------------------------------------
 
 #Calculate geometric mean
+#borrowed from https://stackoverflow.com/questions/2602583/geometric-mean-is-there-a-built-in
+#  "Here is a vectorized, zero- and NA-tolerant function for calculating geometric mean in R. 
+#   The verbose mean calculation involving length(x) is necessary for the cases where x contains non-positive values"
 #input is a vector
 
 
@@ -42,7 +45,9 @@ geo_mean = function(x, na.rm=TRUE){
 # Binomial Listing requirements -------------------------------------------
 
 
-#create function for binomial listing requirements
+#create function for binomial listing requirements for toxix substances
+#This is a hard coded version of the table on pg 15 of the
+#Draft Methodology
 # >200 needs to be fixed
 #ALIANA COMMENT- R has function binom.test that will perform binomial test for us
 #if the table is the method however, we will need to create function based on table
@@ -85,7 +90,8 @@ funct_list <- function(value){
 }
 
 
-#function for inserting listing requirements into table
+#Inserting listing requirements into table
+#This takes a dataframe and 
 funct_list_size <- function(df){
   for(i in 1:nrow(df)){
     df$num_to_list[i] <- as.numeric(funct_list(df$count[[i]])) 
